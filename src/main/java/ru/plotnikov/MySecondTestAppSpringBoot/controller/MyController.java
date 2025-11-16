@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.plotnikov.MySecondTestAppSpringBoot.exception.UnsupportedCodeException;
 import ru.plotnikov.MySecondTestAppSpringBoot.exception.ValidationFailedException;
 import ru.plotnikov.MySecondTestAppSpringBoot.model.*;
+import ru.plotnikov.MySecondTestAppSpringBoot.service.AnnualBonusService;
 import ru.plotnikov.MySecondTestAppSpringBoot.service.ModifyRequestService;
 import ru.plotnikov.MySecondTestAppSpringBoot.service.ModifyResponseService;
 import ru.plotnikov.MySecondTestAppSpringBoot.service.ValidationService;
@@ -27,12 +28,14 @@ public class MyController {
     private final ValidationService validationService;
     private final ModifyResponseService modifyResponseService;
     private final ModifyRequestService modifyRequestService;
+    private final AnnualBonusService annualBonusService;
 
     @Autowired
-    public MyController(ValidationService validationService, @Qualifier("ModifySystemTimeResponseService") ModifyResponseService modifyResponseService, ModifyRequestService modifyRequestService) {
+    public MyController(ValidationService validationService, @Qualifier("ModifySystemTimeResponseService") ModifyResponseService modifyResponseService, ModifyRequestService modifyRequestService, AnnualBonusService annualBonusService) {
         this.validationService = validationService;
         this.modifyResponseService = modifyResponseService;
         this.modifyRequestService = modifyRequestService;
+        this.annualBonusService = annualBonusService;
     }
 
     @PostMapping(value = "/feedback")
@@ -66,6 +69,8 @@ public class MyController {
 
         modifyResponseService.modify(response);
         modifyRequestService.modify(request);
+
+        annualBonusService.calculate(request.getPosition(), request.getSalary(), request.getBonus(), request.getWorkDays());
 
         return new ResponseEntity<>(modifyResponseService.modify(response), HttpStatus.OK);
     }
